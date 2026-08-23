@@ -51,7 +51,7 @@ python main.py
 
 4. Ejecutar la version Web:
 ```bash
-cd ratatube-web/backend
+cd backend
 python api.py
 ```
 
