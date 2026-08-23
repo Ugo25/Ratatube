@@ -43,7 +43,7 @@ class Api:
             return {"error": msg}
 
     def start_download(self, url, download_type, quality):
-        # validar contra valores permitidos
+        # validar valores
         ALLOWED_TYPES = ("Video", "Audio")
         ALLOWED_QUALITIES = ("Best", "1080p", "720p", "480p", "MP3_320", "MP3_192", "MP3_128", "M4A_Original")
         
@@ -52,7 +52,7 @@ class Api:
         if quality not in ALLOWED_QUALITIES:
             return {"error": "Calidad no valida."}
         
-        # Explorador nativo moderno (en proceso aislado para evitar crashes de COM en threads)
+        # Explorador nativo
         CREATE_NO_WINDOW = 0x08000000
         try:
             result = subprocess.run([sys.executable, "--dialog"], capture_output=True, text=True, creationflags=CREATE_NO_WINDOW)
