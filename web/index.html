@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ratatube</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-active {
+            border-bottom: 2px solid #ef4444;
+            color: #f8fafc;
+        }
+
+        .tab-inactive {
+            color: #94a3b8;
+        }
+
+        .tooltip:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-bottom: 5px;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body class="h-screen w-screen flex flex-col">
+
+    <!-- cabeza del programa -->
+    <header class="h-16 flex items-center justify-between px-6 border-b border-slate-800 shrink-0">
+        <div class="flex items-center gap-3">
+            <img src="logo.jpg" alt="Ratatube"
+                class="w-10 h-10 rounded-full object-cover shadow-lg border border-slate-700">
+            <h1 class="text-xl font-bold tracking-tight">Rata<span class="text-red-500">tube</span></h1>
+        </div>
+        <nav class="flex gap-6 text-sm font-medium">
+            <button id="tab-download" data-target="download-tab"
+                class="tab-btn text-white border-b-2 border-red-500 pb-1 transition-colors">Descargar</button>
+            <button id="tab-history" data-target="history-tab"
+                class="tab-btn text-slate-400 border-b-2 border-transparent hover:text-white pb-1 transition-colors">Historial</button>
+        </nav>
+    </header>
+
+    <main class="flex-1 w-full p-4 relative z-10 pt-10 pb-20 overflow-y-auto">
+
+        <!-- apartado de descarga -->
+        <div id="download-tab" class="tab-content max-w-4xl mx-auto flex flex-col gap-6">
+
+            <!-- URL Input -->
+            <div class="glass-panel p-4 rounded-3xl shadow-xl flex items-center gap-3">
+                <i class="fa-brands fa-youtube text-red-500 text-3xl ml-2"></i>
+                <input type="text" id="url-input" placeholder="Pega aquí la URL del video de YouTube..."
+                    class="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-slate-400 text-lg px-2">
+                <button id="btn-search"
+                    class="bg-red-600 hover:bg-red-500 text-white font-bold rounded-2xl px-6 py-3 transition-colors shadow-lg shadow-red-500/20">
+                    <i class="fa-solid fa-search mr-2"></i> Buscar
+                </button>
+            </div>
+
+            <!-- carga -->
+            <div id="loading-spinner" style="display:none"
+                class="flex flex-col items-center justify-center py-12 gap-4">
+                <i class="fa-solid fa-circle-notch fa-spin text-4xl text-red-500"></i>
+                <p class="text-slate-400 font-medium animate-pulse">Obteniendo detalles del video...</p>
+            </div>
+
+            <!-- vista previa -->
+            <div id="preview-section" style="display:none"
+                class="grid grid-cols-1 md:grid-cols-5 gap-6 glass-panel p-6 rounded-3xl shadow-2xl">
+                <div class="md:col-span-3">
+                    <div class="relative rounded-xl overflow-hidden shadow-lg group">
+                        <img id="vid-thumbnail" src=""
+                            class="w-full aspect-video object-cover rounded-lg transform transition-transform duration-500 group-hover:scale-105"
+                            alt="Thumbnail">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <h2 id="vid-title" class="text-xl font-bold line-clamp-3 mb-6">Título del video</h2>
+
+                        <div class="flex flex-col gap-4">
+                            <!-- tipo de descarga -->
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-slate-300">Formato</label>
+                                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-800 rounded-lg border border-slate-700">
+                                    <button id="type-video"
+                                        class="py-2 rounded-md bg-slate-700 shadow font-medium text-sm transition-all text-white">Video
+                                        (MP4)</button>
+                                    <button id="type-audio"
+                                        class="py-2 rounded-md text-slate-400 hover:text-white font-medium text-sm transition-all bg-transparent shadow-none">Audio
+                                        (MP3/M4A)</button>
+                                </div>
+                            </div>
+
+                            <!-- que calidad  -->
+                            <div id="quality-container">
+                                <label class="block mb-2 text-sm font-medium text-slate-300">Calidad</label>
+                                <select id="quality-select"
+                                    class="bg-slate-800 border border-slate-700 text-white text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+                                    <option value="Best">Mejor disponible</option>
+                                    <option value="1080p">1080p Full HD</option>
+                                    <option value="720p">720p HD</option>
+                                    <option value="480p">480p SD</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button id="btn-download"
+                            class="w-full text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 font-bold rounded-xl text-lg px-5 py-4 shadow-lg shadow-red-500/30 transition-all transform hover:-translate-y-1">
+                            <i class="fa-solid fa-download mr-2"></i> DESCARGAR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="downloads-queue" class="flex flex-col gap-3"></div>
+        </div>
+
+        <!-- parte de historial -->
+        <div id="history-tab" class="tab-content hidden max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Historial de descargas</h2>
+                <button id="btn-clear-history" class="text-sm text-slate-400 hover:text-red-400 transition-colors"><i
+                        class="fa-solid fa-trash mr-1"></i> Borrar todo</button>
+            </div>
+
+            <div id="history-list" class="flex flex-col gap-4">
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center text-xs text-slate-600 py-3 border-t border-slate-800 shrink-0">
+        🐀 Ratatube — Uso personal
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
